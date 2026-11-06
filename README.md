@@ -126,6 +126,12 @@ and a smoke test of every page. CI runs the same suite on every push and pull re
 
 Mark Rhean Caballero · Earl Naniong · Joenhel Pico — Instructor: Dr. Caren A. Pacol
 
+## License
+
+The source code is released under the [MIT License](LICENSE). The data files are not covered by it:
+the CPI and FIES statistics come from the PSA (see below), and the map boundaries are MIT-licensed
+separately by their author (`data/ph_regions.LICENSE.txt`).
+
 ## Data attribution
 
 Source data: Philippine Statistics Authority (OpenSTAT and FIES), cleaned and reshaped for this project.
