@@ -8,6 +8,7 @@ from views.common import (
     fmt_pct,
     headline,
     load_inflation_frame,
+    load_region_geojson,
     load_stale_series,
     page_header,
     stale_groups,
@@ -113,9 +114,22 @@ def render(ctx):
         stale_df = load_stale_series()
         stale_regions = set(stale_df.loc[stale_df["commodity_group"] == map_group, "region_code"])
         values = {r: (None if r in stale_regions else v) for r, v in zip(snap["region_code"], snap["yoy_inflation"])}
-        st.plotly_chart(charts.tile_map(values, ctx.region_map, title=f"{map_group}: YoY inflation, {period:%B %Y}"),
-                        use_container_width=True, config={"displayModeBar": False})
-        st.caption("Schematic map: each tile is a region, placed roughly where it sits on the map.")
+        map_title = f"{map_group}: YoY inflation, {period:%B %Y}"
+        geojson = load_region_geojson()
+        if geojson is not None:
+            names = {code: name.split(" (")[0] for code, name in ctx.region_map.items()}
+            map_col, rank_col = st.columns([3, 2])
+            with map_col:
+                st.plotly_chart(charts.region_map(geojson, values, names, title=map_title),
+                                use_container_width=True, config={"displayModeBar": False})
+            with rank_col:
+                st.plotly_chart(charts.region_bars(values, names), use_container_width=True,
+                                config={"displayModeBar": False})
+            st.caption("Grey regions have no usable data for this group. Boundaries: faeldon/philippines-json-maps (MIT).")
+        else:  # boundary file missing: fall back to the schematic tile map
+            st.plotly_chart(charts.tile_map(values, ctx.region_map, title=map_title),
+                            use_container_width=True, config={"displayModeBar": False})
+            st.caption("Schematic map: each tile is a region, placed roughly where it sits on the map.")
 
         st.markdown("##### All regions and commodity groups")
         heat = inflation[(inflation["date"] == period) & (inflation["commodity_group"] != "All Items")]

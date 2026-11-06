@@ -151,6 +151,52 @@ def tile_map(values, names, title=None):
     return fig
 
 
+def region_map(geojson, values, names, title=None):
+    """Choropleth of the 17 regions coloured by YoY inflation.
+
+    Regions with no value (for example a frozen series) are drawn in neutral grey.
+    """
+    codes = [f["id"] for f in geojson["features"]]
+    valid = {c: v for c, v in values.items() if v is not None and not pd.isna(v)}
+    limit = max(max((abs(v) for v in valid.values()), default=1.0), 1.0)
+    fig = go.Figure()
+    fig.add_trace(go.Choropleth(
+        geojson=geojson, locations=codes, z=[0] * len(codes), showscale=False, hoverinfo="skip",
+        colorscale=[[0, "rgba(148,163,184,0.35)"], [1, "rgba(148,163,184,0.35)"]],
+        marker=dict(line=dict(color="rgba(128,128,128,0.7)", width=0.6))))
+    shown = [c for c in codes if c in valid]
+    fig.add_trace(go.Choropleth(
+        geojson=geojson, locations=shown, z=[valid[c] for c in shown],
+        colorscale=DIVERGING, zmid=0, zmin=-limit, zmax=limit,
+        customdata=[names.get(c, c) for c in shown],
+        hovertemplate="%{customdata}<br>%{z:.2f}% YoY<extra></extra>",
+        marker=dict(line=dict(color="rgba(128,128,128,0.7)", width=0.6)),
+        colorbar=dict(title="YoY %", thickness=10, len=0.6)))
+    # Frame the archipelago explicitly (lon 116.5-127, lat 4-21.5); automatic fitting leaves it tiny.
+    fig.update_geos(projection_type="mercator", lonaxis_range=[116.5, 127.0], lataxis_range=[4.0, 21.5],
+                    visible=False, bgcolor="rgba(0,0,0,0)")
+    style(fig, height=620, legend=False)
+    fig.update_layout(margin=dict(l=0, r=0, t=36 if title else 0, b=0))
+    if title:
+        fig.update_layout(title_text=title)
+    return fig
+
+
+def region_bars(values, names):
+    """Ranked list of regions to sit beside the map, with the numbers."""
+    items = sorted(((c, v) for c, v in values.items() if v is not None and not pd.isna(v)), key=lambda kv: kv[1])
+    fig = go.Figure(go.Bar(
+        x=[v for _, v in items], y=[c for c, _ in items], orientation="h", marker_color=ACCENT,
+        customdata=[names.get(c, c) for c, _ in items], text=[f"{v:.1f}%" for _, v in items],
+        textposition="outside", cliponaxis=False, hovertemplate="%{customdata}: %{x:.2f}%<extra></extra>"))
+    style(fig, height=620, legend=False)
+    fig.update_layout(title_text="Ranked")
+    fig.update_yaxes(gridcolor="rgba(0,0,0,0)")
+    top = max((v for _, v in items), default=1.0)
+    fig.update_xaxes(range=[min(0, min((v for _, v in items), default=0)), top * 1.2])
+    return fig
+
+
 def trend_lines(df, region_label):
     """Headline YoY inflation, region vs national, with threshold bands."""
     fig = go.Figure()

@@ -13,7 +13,7 @@ Pangasinan State University – Urdaneta City Campus.
 
 | Page | What it does |
 | --- | --- |
-| **Price Change Dashboard** | A generated one-line takeaway, headline KPIs, and three views. *Commodity groups*: a dumbbell chart of YoY inflation by group against the national figure (Normal / Increasing / High). *Trends*: region vs. national headline inflation with shaded bands, plus a mini chart for every group. *Regions*: a schematic tile map and a region × commodity heatmap. |
+| **Price Change Dashboard** | A generated one-line takeaway, headline KPIs, and three views. *Commodity groups*: a dumbbell chart of YoY inflation by group against the national figure (Normal / Increasing / High). *Trends*: region vs. national headline inflation with shaded bands, plus a mini chart for every group. *Regions*: a map of the 17 regions coloured by inflation with a ranked list beside it, and a region × commodity heatmap. |
 | **Time-Series Forecasting** | Trains Prophet, ARIMA and SARIMA on the same series, scores them on a held-out period (RMSE, MAE, MAPE), and forecasts 6–12 months ahead with the best model and a 95% interval. Shows the inflation the forecast implies, how each model did on months it had not seen, and a CSV download. |
 | **Inflation Rate Viewer** | Month-over-month or year-over-year inflation for any region and group, with a year × month calendar that exposes seasonality. |
 | **Purchasing Power** | Converts a monthly income to 2018 pesos, shows what ₱1 still buys, the income needed to match 2018, what a fixed income has been worth over time, and a comparison with FIES regional averages. Income is never stored. |
@@ -44,7 +44,15 @@ The launcher creates a virtual environment, installs the packages and opens the 
 | `data/PH_CPI_ByRegion_MajorGroups_2018_2026_clean.csv` | PSA OpenSTAT | Monthly CPI (2018 = 100), Jan 2018 – Aug 2026, Philippines + 17 regions × 13 commodity groups + All Items (26,208 records) |
 | `data/PH_FIES_Income_Expenditure_2023_clean.csv` | PSA 2023 FIES | Average annual family income and expenditure for the Philippines and each region (18 rows) |
 
-Both are aggregate public statistics. No personal or household-level records are used.
+| `data/ph_regions.geojson` | [faeldon/philippines-json-maps](https://github.com/faeldon/philippines-json-maps) (MIT) | Simplified boundaries of the 17 regions for the map (247 KB). Licence text in `data/ph_regions.LICENSE.txt` |
+
+Both statistics files are aggregate public data. No personal or household-level records are used.
+
+**About the map file.** The source map includes the Negros Island Region, which the PSA data does not yet use.
+`scripts/build_region_map.py` merges Negros Occidental back into Region VI and Negros Oriental plus Siquijor
+back into Region VII so the map matches the data. The script is only needed to rebuild the file
+(`pip install shapely`); the app does not need it. If the map file is missing, the app falls back to a
+schematic tile map.
 
 ### Data-quality finding
 
@@ -91,7 +99,7 @@ analytics/
   insights.py           One-line takeaways generated from the data
 database/db_manager.py  SQLite loading, validation and queries
 data/                   Cleaned PSA CSV files
-scripts/                Batch model benchmark
+scripts/                Batch model benchmark, region map builder
 results/                Benchmark output
 docs/                   Project paper (DOCX and PDF)
 tests/                  pytest suite
@@ -104,14 +112,14 @@ tests/                  pytest suite
 pytest
 ```
 
-56 tests cover the calculations, database loading, forecasting, data-quality checks, charts and a smoke
-test of every page. CI runs the same suite on every push and pull request.
+62 tests cover the calculations, database loading, forecasting, data-quality checks, charts, the map data
+and a smoke test of every page. CI runs the same suite on every push and pull request.
 
 ## Limitations
 
 - FIES values are from 2023 and do not reflect later income changes; the calculator states the survey year.
 - Forecasts extrapolate past patterns and cannot anticipate shocks. Read the interval, not only the central line.
-- The regional map is schematic, and there are no city-, barangay- or store-level prices.
+- Map boundaries are simplified and show the 17 regions used by the data; there are no city-, barangay- or store-level prices.
 - Frozen series (above) are excluded until the source values are verified.
 
 ## Authors

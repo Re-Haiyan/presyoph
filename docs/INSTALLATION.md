@@ -91,7 +91,7 @@ Run the automated tests to confirm the install is healthy:
 pytest
 ```
 
-You should see `56 passed`.
+You should see `62 passed`.
 
 ## 6. Everyday use
 

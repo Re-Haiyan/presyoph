@@ -1,5 +1,6 @@
 """Shared setup, cached data loaders and small UI helpers for every page."""
 
+import json
 import os
 import re
 from dataclasses import dataclass
@@ -69,6 +70,16 @@ def load_inflation_frame():
 @st.cache_data(show_spinner=False)
 def load_commodity_groups(region_code):
     return get_commodity_groups(region_code)
+
+
+@st.cache_data(show_spinner=False)
+def load_region_geojson():
+    """Region boundaries for the map, or None if the file is missing."""
+    path = os.path.join(BASE_DIR, "data", "ph_regions.geojson")
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
 
 
 @st.cache_data(show_spinner=False)

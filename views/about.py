@@ -30,7 +30,8 @@ interactive tool for households, students and researchers, and local planners.
 - The FIES benchmark reflects 2023 incomes and ages as prices change.
 - Forecasts extrapolate historical patterns. They cannot anticipate shocks such as supply disruptions or policy
   changes, so read the interval, not just the central line.
-- The regional map is schematic, and the data excludes city-, barangay- and store-level prices.
+- Map boundaries are simplified for speed and show the 17 regions used by the PSA data (the Negros Island Region
+  is shown as part of Regions VI and VII, as in the data). The data excludes city-, barangay- and store-level prices.
 """
     )
     stale = load_stale_series()
