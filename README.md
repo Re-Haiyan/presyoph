@@ -21,21 +21,86 @@ Pangasinan State University – Urdaneta City Campus.
 
 The interface follows Streamlit's light or dark theme, so charts and cards adapt automatically.
 
-## Quick start
+## Installation
 
-You need Python 3.10–3.12. Then:
+### What you need
+
+- **Python 3.10 – 3.12** (tested on 3.12). Download it from python.org. On Windows, tick **Add python.exe to PATH**
+  on the first screen of the installer.
+- About **1 GB** of free disk space and an internet connection for the first install only.
+- Any modern web browser.
+
+### Step 1: Get the project
+
+Choose one:
+
+- **Download the ZIP:** on this page click the green **Code** button, then **Download ZIP**.
+  Extract it to a **short folder**, for example `C:\presyoph`. (Very long folder paths can make the install fail on Windows.)
+- **Or use Git:**
+
+  ```bash
+  git clone https://github.com/Re-Haiyan/presyoph.git
+  cd presyoph
+  ```
+
+### Step 2: Install and run
+
+**Windows:** open the project folder and double-click **`run.bat`**. Or, in a terminal inside the folder:
 
 ```bash
-git clone https://github.com/Re-Haiyan/presyoph.git
-cd presyoph
-.\run.bat          # Windows (macOS/Linux: ./run.sh)
+.\run.bat
 ```
 
-The launcher creates a virtual environment, installs the packages and opens the app at
-<http://localhost:8501>. The SQLite database (`presyoph.db`) is built automatically from the CSV files in
-`data/` on first run and rebuilt whenever those files change.
+**macOS / Linux:**
 
-**Full instructions, manual steps, deployment and troubleshooting: [docs/INSTALLATION.md](docs/INSTALLATION.md).**
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+The first run takes a few minutes. It creates a virtual environment, installs the packages, builds the database
+and starts the app. Your browser opens at **http://localhost:8501**. Press `Ctrl + C` in the terminal to stop it.
+Next time, run the same file again and it starts in seconds.
+
+### Manual installation (if you prefer the steps one by one)
+
+**Windows**
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+**macOS / Linux**
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+### Check that it works
+
+- The **Price Change Dashboard** opens and shows a latest CPI of **136.4** (August 2026) with about **6.15%** national inflation.
+- Optional: run `pytest` in the project folder. You should see `62 passed`.
+
+### If something goes wrong
+
+| Problem | Fix |
+| --- | --- |
+| `python` is not recognised, or opens the Microsoft Store | Reinstall Python with **Add python.exe to PATH** ticked, then turn off the `python` entry in Windows Settings → Apps → Advanced app settings → App execution aliases. |
+| Install fails with `No such file or directory` and mentions long paths | Move the project to a short folder such as `C:\presyoph` and run it again. |
+| `pip install` fails on `prophet` | Use Python 3.10–3.12 and upgrade pip first: `python -m pip install --upgrade pip`. |
+| Port 8501 is already in use | Close the other copy, or start with `streamlit run app.py --server.port 8600`. |
+| The page is blank at first | Wait about 20 seconds on first load, then refresh. |
+| The forecast page is slow the first time | Normal: three models are trained once, then the result is cached. |
+
+The SQLite database (`presyoph.db`) is built automatically from the CSV files in `data/` on first run and
+rebuilt whenever those files change. More detail, including deployment to Streamlit Community Cloud and
+using your own data, is in [docs/INSTALLATION.md](docs/INSTALLATION.md).
 
 ## Data
 
