@@ -23,15 +23,19 @@ The interface follows Streamlit's light or dark theme, so charts and cards adapt
 
 ## Quick start
 
+You need Python 3.10–3.12. Then:
+
 ```bash
-python -m venv venv
-venv\Scripts\activate          # macOS/Linux: source venv/bin/activate
-pip install -r requirements.txt
-streamlit run app.py
+git clone https://github.com/Re-Haiyan/presyoph.git
+cd presyoph
+.\run.bat          # Windows (macOS/Linux: ./run.sh)
 ```
 
-The SQLite database (`presyoph.db`) is built automatically from the CSV files in `data/` on first run and
-rebuilt whenever those files change.
+The launcher creates a virtual environment, installs the packages and opens the app at
+<http://localhost:8501>. The SQLite database (`presyoph.db`) is built automatically from the CSV files in
+`data/` on first run and rebuilt whenever those files change.
+
+**Full instructions, manual steps, deployment and troubleshooting: [docs/INSTALLATION.md](docs/INSTALLATION.md).**
 
 ## Data
 

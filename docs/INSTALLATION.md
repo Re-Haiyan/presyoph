@@ -9,7 +9,7 @@ most of it downloading packages.
 | --- | --- | --- |
 | Python | 3.10 – 3.12 | Tested on 3.12. Newer versions may lack prebuilt packages for Prophet. |
 | Git | any recent | Only needed to clone the repository. You can also download a ZIP. |
-| Disk space | ~1.5 GB | Mostly the Python packages. |
+| Disk space | ~1 GB | Mostly the Python packages. |
 | Internet | first install only | The app itself runs offline after installation. |
 | Browser | any modern one | Chrome, Edge, Firefox or Safari. |
 
@@ -36,10 +36,10 @@ it, and open a terminal in the extracted folder.
 
 ## 3. Quick install (recommended)
 
-**Windows:** double-click `run.bat`, or run it in a terminal:
+**Windows:** double-click `run.bat`, or run it in a terminal (the `.\` is required in PowerShell):
 
 ```bash
-run.bat
+.\run.bat
 ```
 
 **macOS / Linux:**
@@ -97,7 +97,7 @@ You should see `56 passed`.
 
 | Task | Command |
 | --- | --- |
-| Start the app | `run.bat` (Windows) or `./run.sh`, or `streamlit run app.py` with the environment active |
+| Start the app | `.\run.bat` (Windows) or `./run.sh`, or `streamlit run app.py` with the environment active |
 | Stop the app | Press `Ctrl + C` in the terminal |
 | Use another port | `streamlit run app.py --server.port 8600` |
 | Rebuild the database | Delete `presyoph.db` and restart. It is rebuilt from `data/` automatically. |
@@ -130,7 +130,8 @@ The database is built on first launch, so nothing else needs to be uploaded.
 
 | Problem | Fix |
 | --- | --- |
-| `python` is not recognised | Reinstall Python with **Add to PATH** ticked, or use `py -3.12` on Windows. |
+| `python` is not recognised, or opens the Microsoft Store | Reinstall Python with **Add to PATH** ticked, then turn off the `python` entry under Settings → Apps → Advanced app settings → App execution aliases. You can also use `py -3.12` on Windows. |
+| `pip install` fails with `No such file or directory` and mentions long paths | Windows limits path length. Move the project to a short folder such as `C:\presyoph` and run it again, or enable long paths (see <https://pip.pypa.io/warnings/enable-long-paths>). |
 | `pip install` fails on `prophet` | Use Python 3.10–3.12 and upgrade pip first: `python -m pip install --upgrade pip`. Without Prophet the app still runs and compares ARIMA and SARIMA only. |
 | `No module named 'views'` or similar | Run the commands from the project folder (the one containing `app.py`). |
 | Port 8501 is already in use | Close the other app, or start with `--server.port 8600`. |

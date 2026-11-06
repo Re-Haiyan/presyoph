@@ -3,17 +3,24 @@ rem PresyoPH launcher for Windows: sets up the environment on first run, then st
 setlocal
 cd /d "%~dp0"
 
-where python >nul 2>nul
-if errorlevel 1 (
+rem Find a Python that really runs (the Microsoft Store "python" shortcut does not count).
+set "PY="
+py -3 --version >nul 2>nul && set "PY=py -3"
+if not defined PY (
+    python --version >nul 2>nul && set "PY=python"
+)
+if not defined PY (
     echo Python was not found. Install Python 3.10-3.12 from https://www.python.org/downloads/
     echo and tick "Add python.exe to PATH", then run this file again.
+    echo If you already installed it, turn off the "python" App execution alias in
+    echo Settings ^> Apps ^> Advanced app settings ^> App execution aliases.
     pause
     exit /b 1
 )
 
 if not exist "venv\Scripts\python.exe" (
     echo Creating virtual environment...
-    python -m venv venv
+    %PY% -m venv venv
     if errorlevel 1 ( echo Could not create the virtual environment. & pause & exit /b 1 )
 )
 
