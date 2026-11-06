@@ -124,7 +124,11 @@ and a smoke test of every page. CI runs the same suite on every push and pull re
 
 ## Authors
 
-Mark Rhean Caballero · Earl Naniong · Joenhel Pico — Instructor: Dr. Caren A. Pacol
+- Mark Rhean Caballero - Project Leader
+- Earl Naniong - Member
+- Joenhel Pico - Member
+
+Instructor: Dr. Caren A. Pacol
 
 ## License
 
