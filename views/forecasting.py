@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from analytics.calculations import classify_inflation_level
-from analytics.forecasting import PROPHET_AVAILABLE, TEST_MONTHS, add_forecast_inflation, prepare_series
+from analytics.forecasting import PROPHET_AVAILABLE, add_forecast_inflation, prepare_series, split_train_test
 from analytics.insights import forecast_headline
 from ui import charts
 from views.common import (
@@ -31,14 +31,16 @@ def render(ctx):
     flat = stale_months(ctx.region, commodity)
     if flat:
         st.warning(
-            f"**{commodity}** has had the same CPI for {flat} months in this region, which points to stale "
-            "source data. A forecast would only repeat that flat line, so it is not shown. Pick another group."
+            f"**{commodity}** has had the same CPI for {flat} months in this region. PSA updates this index only "
+            "occasionally, so there is no month-to-month movement to learn from and a forecast would only "
+            "repeat the flat line. It is not shown; pick another group."
         )
         return
 
     series = prepare_series(load_cpi(region_code=ctx.region, commodity_group=commodity))
-    test_start, test_end = series.index[-TEST_MONTHS], series.index[-1]
-    train_start, train_end = series.index[0], series.index[-TEST_MONTHS - 1]
+    train, test = split_train_test(series)
+    test_start, test_end = test.index[0], test.index[-1]
+    train_start, train_end = train.index[0], train.index[-1]
 
     with st.spinner("Training Prophet, ARIMA and SARIMA on the held-out test period..."):
         results, best, forecast = cached_forecast(ctx.region, commodity, horizon)
@@ -71,7 +73,7 @@ def render(ctx):
         with left:
             st.plotly_chart(charts.model_bars(results, best), use_container_width=True, config={"displayModeBar": False})
         with right:
-            st.plotly_chart(charts.backtest_chart(series, results, best, TEST_MONTHS),
+            st.plotly_chart(charts.backtest_chart(series, results, best, len(test)),
                             use_container_width=True, config={"displayModeBar": False})
         table = pd.DataFrame(
             [{"Model": ("★ " if name == best else "") + name, "Test RMSE": m["rmse"], "Test MAE": m["mae"],

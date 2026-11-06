@@ -76,7 +76,7 @@ def render(ctx):
         if excluded:
             st.info(
                 "**Excluded:** " + ", ".join(excluded) + ". The CPI for this series has not changed for "
-                "several months, which suggests a stale value in the source data."
+                "several months because PSA updates it only occasionally, so there is nothing to rank."
             )
         with st.expander("Show the numbers"):
             cols = ["Commodity Group", "YoY Inflation (%)", "National YoY (%)", "vs National (pts)", "Status"]
@@ -138,4 +138,4 @@ def render(ctx):
         pivot = heat.pivot(index="commodity_group", columns="region_code", values="yoy_inflation").astype(float)
         pivot = pivot[[c for c in ctx.region_map if c in pivot.columns]].dropna(how="all")
         st.plotly_chart(charts.heatmap(pivot), use_container_width=True, config={"displayModeBar": False})
-        st.caption("Blank cells are series with stale source data.")
+        st.caption("Blank cells are series with no month-to-month movement (see About & Methodology).")

@@ -13,10 +13,18 @@ def db(tmp_path, monkeypatch):
 def test_initialize_loads_expected_dataset(db):
     assert db.initialize_db() is True
     first, last, rows = db.get_data_coverage()
-    assert rows == 26208  # 18 regions x 14 series x 104 months
+    assert rows == 28196  # 19 areas (Philippines + 18 regions) x 14 series x 106 months
     assert first == pd.Timestamp("2018-01-01")
-    assert last == pd.Timestamp("2026-08-01")
+    assert last == pd.Timestamp("2026-10-01")
     assert len(db.get_fies_data()) == 18
+
+
+def test_data_has_no_gaps_or_duplicates(db):
+    db.initialize_db()
+    df = db.get_cpi_data()
+    assert not df.duplicated(["date", "region_code", "commodity_code"]).any()
+    assert df["cpi_value"].notna().all()
+    assert (df.groupby(["region_code", "commodity_group"]).size() == 106).all()
 
 
 def test_initialize_is_idempotent_until_sources_change(db, tmp_path):
@@ -39,9 +47,19 @@ def test_missing_columns_are_rejected(db, tmp_path):
 def test_filters_and_commodity_groups(db):
     db.initialize_db()
     series = db.get_cpi_data(region_code="NCR", commodity_group="All Items")
-    assert len(series) == 104
+    assert len(series) == 106
     assert series["date"].is_monotonic_increasing
     groups = db.get_commodity_groups("NCR")
     assert groups[0] == "All Items"
     assert len(groups) == 14
     assert db.get_fies_data("NCR").iloc[0]["survey_year"] == 2023
+
+
+def test_region_names_include_negros_island_region(db):
+    db.initialize_db()
+    names = db.get_region_names()
+    assert list(names)[0] == "PH"
+    assert len(names) == 19
+    assert names["NIR"] == "Negros Island Region (NIR)"   # not in the 2023 survey, added from the extras
+    assert names["NCR"].startswith("National Capital Region")
+    assert db.get_fies_data("NIR").empty                    # no income benchmark for NIR

@@ -17,8 +17,9 @@ def render(ctx):
 
     flat = stale_months(ctx.region, commodity)
     if flat:
-        st.warning(f"The CPI for **{commodity}** has not changed for {flat} months in this region, so recent "
-                   "inflation readings of 0% likely reflect stale source data, not stable prices.")
+        st.info(f"The CPI for **{commodity}** has not changed for {flat} months in this region. PSA updates this "
+                "index only occasionally, so recent inflation readings of 0% mean no published change, not "
+                "necessarily stable prices.")
 
     headline(inflation_headline(latest["yoy_inflation"], previous["yoy_inflation"], commodity,
                                 ctx.region_name, latest["date"]))

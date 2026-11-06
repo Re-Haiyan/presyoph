@@ -16,6 +16,7 @@ from database.db_manager import (
     get_cpi_data,
     get_data_coverage,
     get_fies_data,
+    get_region_names,
     initialize_db,
 )
 
@@ -60,6 +61,11 @@ def load_cpi(region_code=None, commodity_group=None):
 @st.cache_data(show_spinner=False)
 def load_fies(region_code=None):
     return get_fies_data(region_code=region_code)
+
+
+@st.cache_data(show_spinner=False)
+def load_region_names():
+    return get_region_names()
 
 
 @st.cache_data(show_spinner=False)
@@ -127,8 +133,7 @@ def page_header(title, ctx, subtitle=None):
 def build_context():
     """Initialise the database, draw the sidebar and return the page context."""
     setup_database()
-    fies = load_fies()
-    region_map = dict(zip(fies["region_code"], fies["region_name"]))
+    region_map = load_region_names()
     coverage = get_data_coverage()
 
     st.sidebar.markdown("<div class='sidebar-label'>Region</div>", unsafe_allow_html=True)

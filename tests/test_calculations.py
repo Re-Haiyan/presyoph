@@ -9,9 +9,12 @@ from analytics.calculations import (
     calculate_purchasing_power,
     classify_inflation_level,
     compare_to_benchmark,
+    future_real_value,
+    income_needed_for_same_power,
     income_needed_to_match_2018,
     purchasing_power_change_pct,
     real_value_series,
+    whatif_path,
 )
 
 
@@ -89,6 +92,33 @@ def test_income_needed_to_match_2018():
 def test_real_value_series():
     out = real_value_series(1000, make_series([100.0, 200.0]))
     assert out["real_income"].tolist() == pytest.approx([1000.0, 500.0])
+
+
+def test_future_real_value_and_income_needed():
+    assert income_needed_for_same_power(30000, 5.0, 2) == pytest.approx(33075.0)
+    assert future_real_value(30000, 5.0, 2) == pytest.approx(30000 / 1.1025)
+    assert future_real_value(30000, 5.0, 0) == pytest.approx(30000.0)          # no time, no change
+    assert future_real_value(30000, 0.0, 10) == pytest.approx(30000.0)         # no inflation, no change
+    assert future_real_value(30000, 5.0, 3, raise_pct=5.0) == pytest.approx(30000.0)  # raise = inflation
+    assert future_real_value(30000, 5.0, 3, raise_pct=8.0) > 30000                    # raise beats inflation
+    assert future_real_value(30000, -2.0, 1) > 30000                                  # deflation helps
+
+
+def test_whatif_guards_invalid_input():
+    assert future_real_value(0, 5.0, 3) == 0.0
+    assert future_real_value(None, 5.0, 3) == 0.0
+    assert income_needed_for_same_power(-5, 5.0, 3) == 0.0
+    with pytest.raises(ValueError):
+        future_real_value(1000, -100.0, 1)
+
+
+def test_whatif_path_shape_and_endpoints():
+    path = whatif_path(1000, 6.0, 2, raise_pct=0.0)
+    assert len(path) == 25 and path["month"].iloc[0] == 0 and path["years"].iloc[-1] == pytest.approx(2.0)
+    assert path["real"].iloc[0] == pytest.approx(1000.0)
+    assert path["real"].iloc[-1] == pytest.approx(future_real_value(1000, 6.0, 2))
+    assert path["needed"].iloc[-1] == pytest.approx(income_needed_for_same_power(1000, 6.0, 2))
+    assert path["real"].is_monotonic_decreasing
 
 
 def test_benchmark_helpers():

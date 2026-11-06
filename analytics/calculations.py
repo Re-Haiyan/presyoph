@@ -92,6 +92,49 @@ def real_value_series(income, cpi_df):
     return out
 
 
+def _growth_factor(annual_pct, years):
+    """(1 + rate)^years, with the rate given as a percentage per year."""
+    base = 1.0 + annual_pct / 100.0
+    if base <= 0:
+        raise ValueError("A yearly rate of -100% or lower is not meaningful.")
+    return base ** years
+
+
+def future_real_value(income, inflation_pct, years, raise_pct=0.0):
+    """Value, in today's pesos, of ``income`` after ``years`` of steady inflation.
+
+    ``raise_pct`` is a yearly increase in nominal income; with 0 the income stays the same.
+    """
+    if income is None or pd.isna(income) or income <= 0:
+        return 0.0
+    return income * _growth_factor(raise_pct, years) / _growth_factor(inflation_pct, years)
+
+
+def income_needed_for_same_power(income, inflation_pct, years):
+    """Nominal income needed after ``years`` of steady inflation to buy what ``income`` buys today."""
+    if income is None or pd.isna(income) or income <= 0:
+        return 0.0
+    return income * _growth_factor(inflation_pct, years)
+
+
+def whatif_path(income, inflation_pct, years, raise_pct=0.0):
+    """Month-by-month path of an income under steady inflation.
+
+    Columns: ``month`` (0 = today), ``years``, ``nominal`` (pesos received that month, growing with
+    ``raise_pct``), ``real`` (that amount in today's pesos) and ``needed`` (nominal income required to
+    keep today's buying power).
+    """
+    months = list(range(int(round(years * 12)) + 1))
+    rows = []
+    for m in months:
+        t = m / 12.0
+        nominal = income * _growth_factor(raise_pct, t)
+        needed = income * _growth_factor(inflation_pct, t)
+        rows.append({"month": m, "years": t, "nominal": nominal, "real": nominal / _growth_factor(inflation_pct, t),
+                     "needed": needed})
+    return pd.DataFrame(rows)
+
+
 def annual_to_monthly(amount_thousands):
     """Convert an annual figure in thousands of PHP to a monthly figure in PHP."""
     return amount_thousands * 1000.0 / 12.0

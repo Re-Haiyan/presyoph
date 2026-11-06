@@ -80,8 +80,8 @@ or use Command Prompt instead.
 ## 5. Check that it works
 
 1. The terminal shows `Local URL: http://localhost:8501`.
-2. The **Price Change Dashboard** opens and shows **136.4** as the latest CPI for the Philippines
-   (August 2026) with about **6.15%** national inflation.
+2. The **Price Change Dashboard** opens and shows **138.6** as the latest CPI for the Philippines
+   (October 2026) with about **7.8%** national inflation.
 3. In **Time-Series Forecasting**, a forecast chart appears within about 10 seconds. The first run for each
    series trains three models, and later runs are instant.
 
@@ -91,7 +91,7 @@ Run the automated tests to confirm the install is healthy:
 pytest
 ```
 
-You should see `62 passed`.
+You should see `73 passed`.
 
 ## 6. Everyday use
 
@@ -139,7 +139,8 @@ The database is built on first launch, so nothing else needs to be uploaded.
 | Forecast page is slow the first time | Normal: three models are trained. The result is cached for the session. |
 | Want a fixed light or dark theme | Add `base = "light"` or `base = "dark"` under `[theme]` in `.streamlit/config.toml`. By default the app follows your system setting. |
 | `database is locked` | Close any other copy of the app that is using the same `presyoph.db`. |
-| Financial Services shows a notice instead of data | Expected. Its CPI is frozen in the source data, so it is excluded. See the README. |
+| Financial Services shows a notice instead of data | Expected. PSA's own index for it almost never changes, so there is nothing to rank or forecast. See the README. |
+| Want newer PSA data | Run `python scripts/update_cpi_from_psa.py` (add `--dry-run` first to preview), then restart the app. |
 
 Still stuck? Open an issue at <https://github.com/Re-Haiyan/presyoph/issues> with your operating system,
 Python version (`python --version`) and the full error text.

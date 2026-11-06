@@ -33,6 +33,7 @@ TILE_POSITIONS = {
     "R4A": (2, 3), "R5": (3, 3),
     "MIMAROPA": (1, 4),
     "R6": (1, 5), "R7": (2, 5), "R8": (3, 5),
+    "NIR": (1, 6),
     "R9": (0, 7), "R10": (1, 7), "R13": (2, 7),
     "BARMM": (0, 8), "R12": (1, 8), "R11": (2, 8),
 }
@@ -370,6 +371,29 @@ def real_value_line(worth, income):
                   annotation_position="top left")
     style(fig, height=300, legend=False)
     fig.update_yaxes(title="Value in 2018 pesos (PHP)", tickprefix="₱")
+    return fig
+
+
+def whatif_chart(path, income, raise_pct):
+    """What a fixed or growing income is worth, in today's pesos, under steady inflation."""
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=path["years"], y=path["needed"], name="Income needed to stay even",
+                             line=dict(color=AMBER, width=2, dash="dash"),
+                             hovertemplate="Year %{x:.1f}: ₱%{y:,.0f}<extra></extra>"))
+    if raise_pct:
+        fig.add_trace(go.Scatter(x=path["years"], y=path["nominal"], name=f"Your income (+{raise_pct:g}% a year)",
+                                 line=dict(color=NEUTRAL, width=2),
+                                 hovertemplate="Year %{x:.1f}: ₱%{y:,.0f}<extra></extra>"))
+    fig.add_trace(go.Scatter(x=path["years"], y=path["real"],
+                             name="Your income in today's pesos" if raise_pct else "Your income, no raise, in today's pesos",
+                             line=dict(color=ACCENT, width=3),
+                             hovertemplate="Year %{x:.1f}: ₱%{y:,.0f}<extra></extra>"))
+    fig.add_hline(y=income, line_dash="dot", line_color=NEUTRAL, annotation_text="Today's income",
+                  annotation_position="bottom left")
+    style(fig, height=340)
+    fig.update_xaxes(title="Years from now")
+    fig.update_yaxes(title="Pesos per month", tickprefix="₱")
+    fig.update_layout(hovermode="x unified")
     return fig
 
 

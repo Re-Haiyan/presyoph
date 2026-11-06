@@ -60,8 +60,41 @@ def test_forecast_refused_for_stale_series():
     at = run_page("forecasting")
     at.selectbox[0].set_value("Financial Services").run()
     assert not at.exception, [e.value for e in at.exception]
-    assert any("stale" in w.value for w in at.warning)
+    assert any("same CPI" in w.value for w in at.warning)
     assert len(at.metric) == 0  # no forecast metrics were drawn
+
+
+def test_negros_island_region_works_on_every_page():
+    for module in MODULES:
+        at = run_page(module, "NIR")
+        assert not at.exception, (module, [e.value for e in at.exception])
+
+
+def test_nir_calculator_explains_missing_benchmark():
+    at = run_page("purchasing_power", "NIR")
+    assert not at.exception, [e.value for e in at.exception]
+    assert any("No income benchmark" in i.value for i in at.info)
+
+
+def test_whatif_scenario_responds_to_inputs():
+    at = run_page("purchasing_power")
+    assert not at.exception, [e.value for e in at.exception]
+    rate = next(s for s in at.slider if s.label == "Yearly inflation (%)")
+    years = next(s for s in at.slider if s.label == "Years ahead")
+    raise_ = next(s for s in at.slider if s.label == "Your yearly raise (%)")
+    rate.set_value(5.0).run()
+    years = next(s for s in at.slider if s.label == "Years ahead")
+    years.set_value(2).run()
+    assert not at.exception, [e.value for e in at.exception]
+    text = " ".join(m.value for m in at.markdown)
+    assert "5% a year for 2 years" in text
+    # 30,000 at 5% for 2 years: needed = 33,075 and value in today's pesos = 27,211
+    values = " ".join(m.value for m in at.metric)
+    assert "₱33,075" in values and "₱27,211" in values
+    raise_ = next(s for s in at.slider if s.label == "Your yearly raise (%)")
+    raise_.set_value(5.0).run()
+    assert not at.exception, [e.value for e in at.exception]
+    assert "₱30,000" in " ".join(m.value for m in at.metric)  # a raise equal to inflation keeps real value
 
 
 def test_zero_income_does_not_report_total_loss():

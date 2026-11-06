@@ -115,6 +115,24 @@ def get_fies_data(region_code=None):
         return pd.read_sql_query(query, conn, params=params)
 
 
+# Regions in the CPI data that the 2023 FIES (which predates them) does not cover.
+EXTRA_REGION_NAMES = {"NIR": "Negros Island Region (NIR)"}
+
+
+def get_region_names():
+    """Region code -> name for every region in the CPI data, in a stable display order.
+
+    Names come from the FIES file; regions the survey does not cover (the Negros Island Region) are added
+    from ``EXTRA_REGION_NAMES``. The Philippines comes first.
+    """
+    fies = get_fies_data()
+    names = dict(zip(fies["region_code"], fies["region_name"]))
+    with closing(get_connection()) as conn:
+        codes = [row[0] for row in conn.execute("SELECT DISTINCT region_code FROM cpi_data")]
+    ordered = [c for c in names if c in codes] + sorted(c for c in codes if c not in names)
+    return {code: names.get(code) or EXTRA_REGION_NAMES.get(code, code) for code in ordered}
+
+
 def get_commodity_groups(region_code=None):
     """Distinct commodity groups, with 'All Items' first."""
     groups = get_cpi_data(region_code=region_code)["commodity_group"].unique().tolist()

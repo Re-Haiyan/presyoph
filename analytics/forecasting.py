@@ -1,8 +1,9 @@
 """Prophet / ARIMA / SARIMA forecasting with held-out evaluation.
 
-Evaluation protocol (see the project proposal): every model is trained on all months
-except the final ``TEST_MONTHS`` and scored on those held-out months. The model with
-the lowest test RMSE is refit on the full history and used for the forecast.
+Evaluation protocol (see the project proposal): every model is trained on the months up to
+``TRAIN_END`` (December 2025) and scored on every later month in the data, so the held-out
+period grows as PSA publishes new months. The model with the lowest test RMSE is refit on the
+full history and used for the forecast.
 """
 
 import warnings
@@ -26,7 +27,8 @@ try:
 except ImportError:  # pragma: no cover - depends on the environment
     PROPHET_AVAILABLE = False
 
-TEST_MONTHS = 8
+TRAIN_END = pd.Timestamp("2025-12-01")  # last month used for training; later months are the test set
+MIN_TRAIN_MONTHS = 24
 MODEL_NAMES = ("Prophet", "ARIMA", "SARIMA")
 ARIMA_ORDER = (1, 1, 1)
 SARIMA_SEASONAL_ORDER = (1, 1, 1, 12)
@@ -46,13 +48,16 @@ def prepare_series(cpi_series_df):
     return series.interpolate(limit_direction="both")
 
 
-def split_train_test(series, test_months=TEST_MONTHS):
-    """Hold out the last ``test_months`` observations."""
-    if len(series) <= test_months + 24:
+def split_train_test(series, train_end=TRAIN_END):
+    """Train on months up to ``train_end``; hold out every later month."""
+    train = series[series.index <= train_end]
+    test = series[series.index > train_end]
+    if len(train) < MIN_TRAIN_MONTHS or len(test) < 1:
         raise ValueError(
-            f"Need at least {test_months + 25} monthly observations, got {len(series)}."
+            f"Need at least {MIN_TRAIN_MONTHS} months up to {train_end:%b %Y} and at least one later month; "
+            f"got {len(train)} training and {len(test)} test months."
         )
-    return series.iloc[:-test_months], series.iloc[-test_months:]
+    return train, test
 
 
 # ---------------------------------------------------------------------------
@@ -161,13 +166,13 @@ def add_forecast_inflation(history, forecast_df):
     return out
 
 
-def run_forecasting_pipeline(cpi_series_df, forecast_horizon=12, test_months=TEST_MONTHS):
+def run_forecasting_pipeline(cpi_series_df, forecast_horizon=12, train_end=TRAIN_END):
     """Evaluate Prophet, ARIMA and SARIMA, then forecast with the best one.
 
     Returns ``(eval_results, best_model_name, forecast_df)``.
     """
     series = prepare_series(cpi_series_df)
-    train, test = split_train_test(series, test_months)
+    train, test = split_train_test(series, train_end)
     eval_results = evaluate_models(train, test)
     best = select_best_model(eval_results)
     forecast_df = build_forecast(series, best, forecast_horizon)

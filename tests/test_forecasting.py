@@ -14,12 +14,20 @@ def synthetic(months=104, seed=0):
     )
 
 
-def test_split_holds_out_last_months():
-    series = fc.prepare_series(synthetic())
+def test_split_trains_to_december_2025_and_tests_every_later_month():
+    series = fc.prepare_series(synthetic())  # Jan 2018 - Aug 2026
     train, test = fc.split_train_test(series)
-    assert len(test) == fc.TEST_MONTHS
     assert train.index[-1] == pd.Timestamp("2025-12-01")
+    assert test.index[0] == pd.Timestamp("2026-01-01")
     assert test.index[-1] == pd.Timestamp("2026-08-01")
+    assert len(test) == 8
+
+
+def test_test_window_grows_when_new_months_arrive():
+    series = fc.prepare_series(synthetic(months=106))  # through Oct 2026, as in the refreshed data
+    train, test = fc.split_train_test(series)
+    assert len(train) == 96
+    assert len(test) == 10
 
 
 def test_split_rejects_short_series():

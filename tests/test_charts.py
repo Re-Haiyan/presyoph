@@ -11,7 +11,7 @@ def test_short_label():
 
 
 def test_tile_positions_are_unique():
-    assert len(set(charts.TILE_POSITIONS.values())) == len(charts.TILE_POSITIONS) == 17
+    assert len(set(charts.TILE_POSITIONS.values())) == len(charts.TILE_POSITIONS) == 18
 
 
 def test_tile_map_skips_missing_values():

@@ -57,9 +57,24 @@ def forecast_headline(best_model, horizon, end_date, end_yoy, last_actual_date):
     )
 
 
+def whatif_headline(income, inflation_pct, years, raise_pct, future_real, needed):
+    """Headline for the what-if scenario."""
+    span = f"{years:g} year{'s' if years != 1 else ''}"
+    lost = (1.0 - future_real / income) * 100.0 if income else 0.0
+    if raise_pct:
+        verdict = (
+            f"With a {raise_pct:g}% yearly raise your income would be worth **₱{future_real:,.0f}** in today's pesos"
+            f" ({'a gain' if lost < 0 else 'a loss'} of {abs(lost):.1f}%)"
+        )
+    else:
+        verdict = (f"Without a raise, ₱{income:,.0f} would buy what **₱{future_real:,.0f}** buys today "
+                   f"(a {abs(lost):.1f}% {'loss' if lost >= 0 else 'gain'})")
+    return f"If inflation stays at {inflation_pct:g}% a year for {span}: {verdict}. To stay even you would need **₱{needed:,.0f}**."
+
+
 def purchasing_headline(peso_value, region_name, income, vs_income_pct):
     """Headline for the purchasing power page."""
     text = f"In {region_name}, ₱1.00 today buys what **₱{peso_value:.2f}** bought in 2018"
-    if income > 0:
+    if income > 0 and vs_income_pct is not None:
         text += f". Your income is {abs(vs_income_pct):.0f}% {'above' if vs_income_pct >= 0 else 'below'} the regional average family income"
     return text + "."

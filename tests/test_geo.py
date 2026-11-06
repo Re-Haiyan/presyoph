@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import pytest
 
-from database.db_manager import DEFAULT_FIES_CSV
+from database.db_manager import DEFAULT_CPI_CSV
 from ui import charts
 
 GEO = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "ph_regions.geojson")
@@ -24,10 +24,10 @@ def coords(obj):
             yield from coords(item)
 
 
-def test_regions_match_the_data_exactly(geojson):
-    expected = set(pd.read_csv(DEFAULT_FIES_CSV)["region_code"]) - {"PH"}
+def test_regions_match_the_cpi_data_exactly(geojson):
+    expected = set(pd.read_csv(DEFAULT_CPI_CSV)["region_code"]) - {"PH"}
     assert {f["id"] for f in geojson["features"]} == expected
-    assert len(geojson["features"]) == 17
+    assert len(geojson["features"]) == 18
 
 
 def test_file_is_small_and_credits_its_source(geojson):
@@ -43,12 +43,13 @@ def test_shapes_are_inside_the_philippines(geojson):
             assert 116 <= lon <= 128 and 4 <= lat <= 21, feature["id"]
 
 
-def test_negros_is_merged_into_regions_vi_and_vii(geojson):
-    # Negros Island lies near lon 123, lat 10; it must belong to R6 or R7, never to a separate region.
+def test_negros_island_region_is_its_own_region(geojson):
+    # Negros Island lies near lon 123, lat 10. PSA's table lists it as NIR, separate from Regions VI and VII.
     by_id = {f["id"]: f for f in geojson["features"]}
-    for code in ("R6", "R7"):
-        points = list(coords(by_id[code]["geometry"]["coordinates"]))
-        assert any(122.5 < lon < 124 and 9 < lat < 11 for lon, lat in points), code
+    points = list(coords(by_id["NIR"]["geometry"]["coordinates"]))
+    assert any(122.5 < lon < 123.6 and 9.0 < lat < 11.0 for lon, lat in points)
+    # Siquijor, formerly Region VII, is part of NIR.
+    assert any(123.4 < lon < 123.8 and 9.0 < lat < 9.4 for lon, lat in points)
 
 
 def test_region_map_greys_out_missing_regions(geojson):
@@ -58,8 +59,8 @@ def test_region_map_greys_out_missing_regions(geojson):
     values["R2"] = float("nan")
     fig = charts.region_map(geojson, values, names)
     assert len(fig.data) == 2
-    assert len(fig.data[0].locations) == 17          # grey base layer covers every region
-    assert len(fig.data[1].locations) == 15          # coloured layer skips the two missing
+    assert len(fig.data[0].locations) == 18          # grey base layer covers every region
+    assert len(fig.data[1].locations) == 16          # coloured layer skips the two missing
     assert "R1" not in fig.data[1].locations
 
 
