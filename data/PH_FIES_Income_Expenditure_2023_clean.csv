@@ -1,0 +1,19 @@
+region_code,region_name,avg_annual_income_php_thousands,avg_annual_expenditure_php_thousands,survey_year
+PH,PHILIPPINES,353.23,258.05,2023
+NCR,National Capital Region (NCR),513.52,385.05,2023
+CAR,Cordillera Administrative Region (CAR),359.24,247.86,2023
+R1,Region I (Ilocos Region),339.69,232.44,2023
+R2,Region II (Cagayan Valley),310.55,214.0,2023
+R3,Region III (Central Luzon),375.24,298.7,2023
+R4A,Region IV-A (CALABARZON),426.53,310.32,2023
+MIMAROPA,MIMAROPA Region,267.36,189.77,2023
+R5,Region V (Bicol Region),287.47,202.62,2023
+R6,Region VI (Western Visayas),320.23,229.74,2023
+R7,Region VII (Central Visayas),326.94,218.03,2023
+R8,Region VIII (Eastern Visayas),267.33,199.91,2023
+R9,Region IX (Zamboanga Peninsula),257.14,200.93,2023
+R10,Region X (Northern Mindanao),296.5,202.58,2023
+R11,Region XI (Davao Region),318.95,204.33,2023
+R12,Region XII (SOCCSKSARGEN),282.44,202.34,2023
+R13,Region XIII (Caraga),276.57,213.12,2023
+BARMM,Bangsamoro Autonomous Region in Muslim Mindanao (BARMM),206.88,168.91,2023
