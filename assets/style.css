@@ -1,173 +1,77 @@
-/* PresyoPH Design System: Modern, Minimalist & Theme-Adaptive */
+/* PresyoPH: minimal, theme-adaptive styling. Colours come from Streamlit's active theme. */
 
 :root {
-    --primary-bg: #121212;
-    --card-bg: #1E1E1E;
-    --accent-teal: #0D9488;
-    --accent-amber: #D97706;
-    --accent-red: #DC2626;
-    --border-color: #333333;
+    --accent: #0D9488;
 }
 
-/* Reduce Top Padding across Streamlit Pages */
 .block-container {
-    padding-top: 1.5rem !important;
-    padding-bottom: 2rem !important;
+    padding-top: 2rem !important;
+    padding-bottom: 3rem !important;
+    max-width: 1200px;
 }
 
-/* ==========================================================================
-   SIDEBAR BRANDING HEADER (Theme-Adaptive Text Color)
-   ========================================================================== */
+h1 {
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+    padding-bottom: 0.1rem !important;
+}
 
-.sidebar-brand-container {
+h5 {
+    font-weight: 600 !important;
+    margin-top: 0.5rem !important;
+}
+
+/* One-sentence takeaway under each page title */
+.headline {
+    border-left: 3px solid var(--accent);
+    padding: 0.35rem 0 0.35rem 0.9rem;
+    margin: 0.25rem 0 1.1rem 0;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    opacity: 0.92;
+}
+
+/* Sidebar brand */
+.brand {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-color, rgba(150, 150, 150, 0.2));
+    gap: 0.7rem;
+    margin: 0.25rem 0 1.2rem 0;
 }
 
-.sidebar-brand-text {
-    display: flex;
-    flex-direction: column;
+.brand-logo svg {
+    width: 36px;
+    height: 36px;
+    display: block;
 }
 
-/* Automatic text color for Light/Dark mode */
-.sidebar-brand-title {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: var(--text-color) !important; /* Dynamic white in dark mode, dark slate in light mode */
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-}
-
-.sidebar-brand-subtitle {
-    font-size: 0.65rem;
+.brand-title {
+    font-size: 1.15rem;
     font-weight: 700;
-    color: var(--accent-teal);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 3px;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
 }
 
-.sidebar-section-label {
-    font-size: 0.70rem;
-    font-weight: 700;
-    color: var(--text-color);
+.brand-sub {
+    font-size: 0.72rem;
     opacity: 0.6;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
 }
 
-/* ==========================================================================
-   SIDEBAR NAVIGATION PILLS (Clean, Centered, No Radio Circles)
-   ========================================================================== */
-
-[data-testid="stSidebar"] [data-testid="stRadio"] {
-    margin-top: -5px !important;
-    padding-top: 0px !important;
-}
-
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-    width: 100% !important;
-}
-
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] > div {
-    width: 100% !important;
-}
-
-/* TULUYANG ITAGO ANG LAHAT NG RADIO CIRCLE INDICATORS */
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label > div:first-child,
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label [data-testid="stRadioButtonCustomIcon"],
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label input {
-    display: none !important;
-    width: 0px !important;
-    height: 0px !important;
-    margin: 0 !important;
-}
-
-/* Clean Standalone Pill Button Styling */
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label {
-    background-color: var(--background-secondary-color, rgba(125, 140, 160, 0.12)) !important;
-    border: 0px solid var(--border-color, rgba(140, 150, 170, 0.25)) !important;
-    border-radius: 50px !important; /* Perfect Capsule Pill */
-    padding: 10px 16px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    cursor: pointer !important;
-    transition: all 0.25s ease-in-out !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-}
-
-/* Hover State - Teal Accent */
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:hover {
-    border-color: var(--accent-teal) !important;
-    background-color: rgba(13, 148, 136, 0.12) !important;
-    transform: translateY(-2px) !important;
-}
-
-/* Active Selected Pill Highlight */
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked),
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label[aria-checked="true"] {
-    background-color: rgba(13, 148, 136, 0.22) !important;
-    border-color: var(--accent-teal) !important;
-    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2) !important;
-}
-
-/* Centered Pill Label Text (Dynamic Color) */
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label p,
-[data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] label span {
-    color: var(--text-color) !important;
-    font-weight: 600 !important;
-    font-size: 0.88rem !important;
-    margin: 0 !important;
-    text-align: center !important;
-    width: 100% !important;
-    white-space: nowrap !important; /* Prevents awkward text wrapping */
-}
-
-/* ==========================================================================
-   METRIC CARDS (Dynamic Theme-Adaptive)
-   ========================================================================== */
-
-.metric-card {
-    background-color: var(--background-secondary-color, rgba(125, 140, 160, 0.12));
-    border-radius: 10px;
-    padding: 18px 22px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-/* Inherits theme text color automatically */
-.metric-card * {
-    color: var(--text-color) !important;
-}
-
-.metric-label {
-    font-size: 0.78rem;
+.sidebar-label {
+    font-size: 0.7rem;
     font-weight: 600;
-    opacity: 0.75;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    opacity: 0.55;
+    margin-bottom: 0.25rem;
 }
 
-.metric-value {
-    font-size: 1.75rem;
-    font-weight: 800;
-    margin-top: 4px;
+/* Quieter tabs and metric labels */
+[data-testid="stMetricLabel"] p {
+    font-size: 0.8rem;
+    opacity: 0.7;
 }
 
-.metric-sub {
-    font-size: 0.80rem;
-    margin-top: 4px;
-    opacity: 0.75;
+button[data-baseweb="tab"] p {
+    font-weight: 600;
 }

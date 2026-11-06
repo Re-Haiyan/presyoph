@@ -24,6 +24,7 @@ from analytics.forecasting import (  # noqa: E402
     select_best_model,
     split_train_test,
 )
+from analytics.quality import find_stale_series  # noqa: E402
 from database.db_manager import get_cpi_data, initialize_db  # noqa: E402
 
 
@@ -63,11 +64,15 @@ def main():
     if args.scope == "all-items":
         cpi = cpi[cpi["commodity_group"] == "All Items"]
 
+    # Series whose CPI is frozen for months carry no signal; scoring them would flatter every model.
+    stale = {tuple(r) for r in find_stale_series(get_cpi_data())[["region_code", "commodity_group"]].values}
     jobs = [
         (region, group, frame[["date", "cpi_value"]])
         for (region, group), frame in cpi.groupby(["region_code", "commodity_group"])
+        if (region, group) not in stale
     ]
-    print(f"Evaluating {len(jobs)} series with {args.workers} workers...", flush=True)
+    print(f"Skipping {len(stale)} stale series; evaluating {len(jobs)} series with {args.workers} workers...",
+          flush=True)
 
     rows = []
     with ProcessPoolExecutor(max_workers=args.workers) as pool:

@@ -13,11 +13,13 @@ Pangasinan State University – Urdaneta City Campus.
 
 | Page | What it does |
 | --- | --- |
-| **Price Change Dashboard** | Ranks the 13 commodity groups by year-over-year price change (Normal / Increasing / High), compares each with the national figure, plots region vs. national headline inflation, and shows a region × commodity heatmap. |
-| **Time-Series Forecasting** | Trains Prophet, ARIMA and SARIMA on the same series, scores them on a held-out period (RMSE, MAE, MAPE), forecasts 6–12 months ahead with the best model and a 95% interval, and shows the inflation rate the forecast implies. CSV download included. |
-| **Inflation Rate Viewer** | Month-over-month or year-over-year inflation for any region and commodity group, with the latest reading, change, and record high. |
-| **Purchasing Power Calculator** | Converts a monthly income to 2018 pesos using the regional CPI, shows what that income has been worth over time, and compares it with the regional FIES average income and expenditure. Income is never stored. |
-| **About & Methodology** | Data sources, formulas, thresholds and limitations. |
+| **Price Change Dashboard** | A generated one-line takeaway, headline KPIs, and three views. *Commodity groups*: a dumbbell chart of YoY inflation by group against the national figure (Normal / Increasing / High). *Trends*: region vs. national headline inflation with shaded bands, plus a mini chart for every group. *Regions*: a schematic tile map and a region × commodity heatmap. |
+| **Time-Series Forecasting** | Trains Prophet, ARIMA and SARIMA on the same series, scores them on a held-out period (RMSE, MAE, MAPE), and forecasts 6–12 months ahead with the best model and a 95% interval. Shows the inflation the forecast implies, how each model did on months it had not seen, and a CSV download. |
+| **Inflation Rate Viewer** | Month-over-month or year-over-year inflation for any region and group, with a year × month calendar that exposes seasonality. |
+| **Purchasing Power** | Converts a monthly income to 2018 pesos, shows what ₱1 still buys, the income needed to match 2018, what a fixed income has been worth over time, and a comparison with FIES regional averages. Income is never stored. |
+| **About & Methodology** | Data sources, formulas, thresholds, limitations and data-quality findings. |
+
+The interface follows Streamlit's light or dark theme, so charts and cards adapt automatically.
 
 ## Quick start
 
@@ -40,6 +42,14 @@ rebuilt whenever those files change.
 
 Both are aggregate public statistics. No personal or household-level records are used.
 
+### Data-quality finding
+
+**19 of the 252 series have a frozen CPI.** Financial Services is unchanged in every region (nationally it
+has been 142.4 since January 2024; regionally it has been flat for 32–65 months), and Information and
+Communication in Region III has been flat for six months. That pattern points to a stale or carried-forward
+value in the source table, not stable prices. The app detects any series unchanged for 6+ months, leaves it
+out of rankings, maps and forecasts, and says so on screen. Please verify these values against the PSA release.
+
 ## Method
 
 - **Inflation**: YoY = CPI(t)/CPI(t−12) − 1; MoM = CPI(t)/CPI(t−1) − 1. Levels: Normal ≤ 3%, Increasing ≤ 5%, High > 5%.
@@ -50,31 +60,38 @@ Both are aggregate public statistics. No personal or household-level records are
 
 ## Model benchmark
 
-`python scripts/evaluate_models.py` evaluates all 252 region × commodity-group series
-(output in [`results/`](results/)). Results for the Jan – Aug 2026 test period:
+`python scripts/evaluate_models.py` evaluates every region × commodity-group series that passes the
+data-quality check (233 of 252). Output is in [`results/`](results/). Jan – Aug 2026 test period:
 
 | Model | Mean RMSE | Median RMSE | Mean MAE | Mean MAPE | Median MAPE | Selected as best |
 | --- | --- | --- | --- | --- | --- | --- |
-| ARIMA | 4.07 | 2.55 | 3.57 | 2.49% | 1.52% | 48 / 252 |
-| Prophet | 4.44 | 2.93 | 3.97 | 2.80% | 1.79% | 56 / 252 |
-| **SARIMA** | **3.54** | **2.45** | **3.05** | **2.15%** | 1.55% | **148 / 252** |
+| ARIMA | 4.40 | 2.81 | 3.86 | 2.70% | 1.85% | 30 / 233 |
+| Prophet | 4.50 | 2.71 | 4.02 | 2.84% | 1.79% | 56 / 233 |
+| **SARIMA** | **3.46** | **2.17** | **3.00** | **2.12%** | **1.36%** | **147 / 233** |
 
-SARIMA has the lowest average error and is selected most often. ARIMA has the lowest *median* MAPE, so the
-differences are modest for typical series and larger for volatile ones. Because the app picks a model per
-series, it benefits from all three.
+SARIMA has the lowest error on every measure and is selected most often. Prophet and ARIMA are close
+to each other, and Prophet was less accurate than ARIMA on the headline All Items series. This is one
+eight-month test window, so read it as a result for this data, not a general ranking. The app picks a model
+per series, so it benefits from all three.
 
 ## Project structure
 
 ```
-app.py                  Streamlit app (5 pages)
+app.py                  Entry point: layout, navigation, sidebar
+views/                  One module per page (dashboard, forecasting, inflation, purchasing_power, about)
+ui/charts.py            All Plotly figures, with one shared minimal style
 analytics/
   calculations.py       Inflation, classification and purchasing-power math
   forecasting.py        Prophet / ARIMA / SARIMA, evaluation and forecasting
+  quality.py            Detects frozen (stale) CPI series
+  insights.py           One-line takeaways generated from the data
 database/db_manager.py  SQLite loading, validation and queries
 data/                   Cleaned PSA CSV files
 scripts/                Batch model benchmark
 results/                Benchmark output
-tests/                  pytest suite (calculations, database, forecasting, app smoke tests)
+docs/                   Project paper (DOCX and PDF)
+tests/                  pytest suite
+.streamlit/config.toml  Theme settings
 ```
 
 ## Testing
@@ -83,13 +100,15 @@ tests/                  pytest suite (calculations, database, forecasting, app s
 pytest
 ```
 
-CI runs the same suite on every push and pull request.
+56 tests cover the calculations, database loading, forecasting, data-quality checks, charts and a smoke
+test of every page. CI runs the same suite on every push and pull request.
 
 ## Limitations
 
 - FIES values are from 2023 and do not reflect later income changes; the calculator states the survey year.
 - Forecasts extrapolate past patterns and cannot anticipate shocks. Read the interval, not only the central line.
-- Region-level data only: no city-, barangay- or store-level prices.
+- The regional map is schematic, and there are no city-, barangay- or store-level prices.
+- Frozen series (above) are excluded until the source values are verified.
 
 ## Authors
 

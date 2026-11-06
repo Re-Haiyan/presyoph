@@ -111,14 +111,18 @@ def evaluate_models(train, test):
             continue
         try:
             predicted, _, _ = _FORECASTERS[name](train, len(test))
-            results[name] = {**error_metrics(test.values, predicted), "status": "Success"}
+            results[name] = {
+                **error_metrics(test.values, predicted),
+                "status": "Success",
+                "predictions": np.asarray(predicted, dtype=float),
+            }
         except Exception as exc:  # a failing model must not break the others
             results[name] = _failed(f"Failed: {exc}")
     return results
 
 
 def _failed(status):
-    return {"rmse": np.nan, "mae": np.nan, "mape": np.nan, "status": status}
+    return {"rmse": np.nan, "mae": np.nan, "mape": np.nan, "status": status, "predictions": None}
 
 
 def select_best_model(eval_results):
