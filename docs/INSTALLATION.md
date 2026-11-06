@@ -30,9 +30,9 @@ git clone https://github.com/Re-Haiyan/presyoph.git
 cd presyoph
 ```
 
-The repository is private. Sign in first with `gh auth login` (GitHub CLI) or use a personal access token
-when Git asks for a password. Without Git, open the repository page, choose **Code → Download ZIP**, extract
-it, and open a terminal in the extracted folder.
+No Git? Download the ZIP directly from
+<https://github.com/Re-Haiyan/presyoph/archive/refs/heads/main.zip> (or open the repository page and choose
+**Code → Download ZIP**), extract it to a short folder such as `C:\presyoph`, and open a terminal there.
 
 ## 3. Quick install (recommended)
 
