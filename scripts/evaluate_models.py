@@ -64,7 +64,8 @@ def main():
     if args.scope == "all-items":
         cpi = cpi[cpi["commodity_group"] == "All Items"]
 
-    # Series whose CPI is frozen for months carry no signal; scoring them would flatter every model.
+    # Series whose CPI never changes carry no signal; scoring them distorts the averages (in an earlier run it
+    # helped ARIMA and Prophet and hurt SARIMA), so they are skipped.
     stale = {tuple(r) for r in find_stale_series(get_cpi_data())[["region_code", "commodity_group"]].values}
     jobs = [
         (region, group, frame[["date", "cpi_value"]])
