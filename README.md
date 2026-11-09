@@ -184,7 +184,7 @@ analytics/
   insights.py           One-line takeaways generated from the data
 database/db_manager.py  SQLite loading, validation and queries
 data/                   Cleaned PSA CSV files
-scripts/                PSA data refresh, batch model benchmark, region map builder
+scripts/                PSA data refresh, batch model benchmark, region map builder, labelled demo workflow
 results/                Benchmark output
 docs/                   Project paper (DOCX and PDF)
 tests/                  pytest suite
